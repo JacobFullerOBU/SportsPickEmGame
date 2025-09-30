@@ -2,6 +2,12 @@
 
 A web-based sports pick'em game where users can view upcoming sports matchups and pick which team they think will win.
 
+## Live Demo
+
+🔗 [Play the game here](https://jacobfullerobU.github.io/SportsPickEmGame/)
+
+The game is automatically deployed to GitHub Pages when changes are pushed to the main branch.
+
 ## Features
 
 - **Interactive Matchup Display**: View multiple sports matchups with team names, records, and game information
@@ -56,6 +62,19 @@ Works on all modern browsers including:
 - Firefox
 - Safari
 - Edge
+
+## Deployment
+
+This project is automatically deployed to GitHub Pages using GitHub Actions. The deployment workflow:
+
+1. Triggers on every push to the `main` branch
+2. Uploads the static files (HTML, CSS, JS) to GitHub Pages
+3. Makes the site available at https://jacobfullerobU.github.io/SportsPickEmGame/
+
+To set up GitHub Pages for your own repository:
+1. Go to repository Settings > Pages
+2. Under "Build and deployment", select "GitHub Actions" as the source
+3. Push changes to the main branch to trigger deployment
 
 ## License
 
