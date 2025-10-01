@@ -48,9 +48,9 @@ const sampleMatchups = [
     {
         id: 4,
         sport: "College Football",
-        date: "Saturday, October 5, 2025",
+        date: "Saturday, October 11, 2025",
         time: "3:30 PM EST",
-        rawDate: new Date("2025-10-05T19:30:00Z"),
+        rawDate: new Date("2025-10-11T19:30:00Z"),
         homeTeam: {
             name: "Alabama Crimson Tide",
             record: "4-1"
@@ -58,6 +58,36 @@ const sampleMatchups = [
         awayTeam: {
             name: "Georgia Bulldogs",
             record: "5-0"
+        }
+    },
+    {
+        id: 5,
+        sport: "College Football",
+        date: "Saturday, October 11, 2025",
+        time: "7:00 PM EST",
+        rawDate: new Date("2025-10-11T23:00:00Z"),
+        homeTeam: {
+            name: "Ohio State Buckeyes",
+            record: "5-0"
+        },
+        awayTeam: {
+            name: "Penn State Nittany Lions",
+            record: "5-0"
+        }
+    },
+    {
+        id: 6,
+        sport: "College Football",
+        date: "Saturday, October 11, 2025",
+        time: "12:00 PM EST",
+        rawDate: new Date("2025-10-11T16:00:00Z"),
+        homeTeam: {
+            name: "Texas Longhorns",
+            record: "5-0"
+        },
+        awayTeam: {
+            name: "Oklahoma Sooners",
+            record: "4-1"
         }
     }
 ];
