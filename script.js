@@ -19,6 +19,81 @@ const sampleMatchups = [
         id: 2,
         sport: "NFL",
         date: "Sunday, October 6, 2025",
+        time: "1:00 PM EST",
+        rawDate: new Date("2025-10-06T17:00:00Z"),
+        homeTeam: {
+            name: "Buffalo Bills",
+            record: "3-1"
+        },
+        awayTeam: {
+            name: "Baltimore Ravens",
+            record: "3-1"
+        }
+    },
+    {
+        id: 3,
+        sport: "NFL",
+        date: "Sunday, October 6, 2025",
+        time: "1:00 PM EST",
+        rawDate: new Date("2025-10-06T17:00:00Z"),
+        homeTeam: {
+            name: "Cincinnati Bengals",
+            record: "2-2"
+        },
+        awayTeam: {
+            name: "Arizona Cardinals",
+            record: "1-3"
+        }
+    },
+    {
+        id: 4,
+        sport: "NFL",
+        date: "Sunday, October 6, 2025",
+        time: "1:00 PM EST",
+        rawDate: new Date("2025-10-06T17:00:00Z"),
+        homeTeam: {
+            name: "Jacksonville Jaguars",
+            record: "1-3"
+        },
+        awayTeam: {
+            name: "Indianapolis Colts",
+            record: "2-2"
+        }
+    },
+    {
+        id: 5,
+        sport: "NFL",
+        date: "Sunday, October 6, 2025",
+        time: "1:00 PM EST",
+        rawDate: new Date("2025-10-06T17:00:00Z"),
+        homeTeam: {
+            name: "Miami Dolphins",
+            record: "1-3"
+        },
+        awayTeam: {
+            name: "New England Patriots",
+            record: "1-3"
+        }
+    },
+    {
+        id: 6,
+        sport: "NFL",
+        date: "Sunday, October 6, 2025",
+        time: "4:05 PM EST",
+        rawDate: new Date("2025-10-06T20:05:00Z"),
+        homeTeam: {
+            name: "Denver Broncos",
+            record: "2-2"
+        },
+        awayTeam: {
+            name: "Las Vegas Raiders",
+            record: "2-2"
+        }
+    },
+    {
+        id: 7,
+        sport: "NFL",
+        date: "Sunday, October 6, 2025",
         time: "4:25 PM EST",
         rawDate: new Date("2025-10-06T20:25:00Z"),
         homeTeam: {
@@ -26,27 +101,72 @@ const sampleMatchups = [
             record: "4-0"
         },
         awayTeam: {
-            name: "Las Vegas Raiders",
+            name: "New Orleans Saints",
+            record: "2-2"
+        }
+    },
+    {
+        id: 8,
+        sport: "NFL",
+        date: "Sunday, October 6, 2025",
+        time: "4:25 PM EST",
+        rawDate: new Date("2025-10-06T20:25:00Z"),
+        homeTeam: {
+            name: "San Francisco 49ers",
+            record: "2-2"
+        },
+        awayTeam: {
+            name: "Seattle Seahawks",
+            record: "3-1"
+        }
+    },
+    {
+        id: 9,
+        sport: "NFL",
+        date: "Sunday, October 6, 2025",
+        time: "8:20 PM EST",
+        rawDate: new Date("2025-10-07T00:20:00Z"),
+        homeTeam: {
+            name: "Green Bay Packers",
+            record: "2-2"
+        },
+        awayTeam: {
+            name: "Los Angeles Rams",
             record: "1-3"
         }
     },
     {
-        id: 3,
-        sport: "NBA",
+        id: 10,
+        sport: "NFL",
         date: "Monday, October 7, 2025",
-        time: "7:30 PM EST",
-        rawDate: new Date("2025-10-07T23:30:00Z"),
+        time: "8:15 PM EST",
+        rawDate: new Date("2025-10-08T00:15:00Z"),
         homeTeam: {
-            name: "Los Angeles Lakers",
-            record: "2-0"
+            name: "Detroit Lions",
+            record: "3-1"
         },
         awayTeam: {
-            name: "Golden State Warriors",
-            record: "1-1"
+            name: "Las Vegas Raiders",
+            record: "2-2"
         }
     },
     {
-        id: 4,
+        id: 11,
+        sport: "College Football",
+        date: "Saturday, October 5, 2025",
+        time: "12:00 PM EST",
+        rawDate: new Date("2025-10-05T16:00:00Z"),
+        homeTeam: {
+            name: "Ohio State Buckeyes",
+            record: "4-0"
+        },
+        awayTeam: {
+            name: "Maryland Terrapins",
+            record: "3-1"
+        }
+    },
+    {
+        id: 12,
         sport: "College Football",
         date: "Saturday, October 5, 2025",
         time: "3:30 PM EST",
@@ -58,6 +178,21 @@ const sampleMatchups = [
         awayTeam: {
             name: "Georgia Bulldogs",
             record: "5-0"
+        }
+    },
+    {
+        id: 13,
+        sport: "College Football",
+        date: "Saturday, October 5, 2025",
+        time: "7:30 PM EST",
+        rawDate: new Date("2025-10-05T23:30:00Z"),
+        homeTeam: {
+            name: "Texas Longhorns",
+            record: "4-0"
+        },
+        awayTeam: {
+            name: "Oklahoma Sooners",
+            record: "3-1"
         }
     }
 ];
