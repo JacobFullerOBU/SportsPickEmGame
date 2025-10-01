@@ -10,20 +10,24 @@ The game is automatically deployed to GitHub Pages when changes are pushed to th
 
 ## Features
 
+- **Live Game Data**: Automatically fetches upcoming NFL and top 25 College Football games from ESPN API
 - **Interactive Matchup Display**: View multiple sports matchups with team names, records, and game information
 - **Easy Pick Selection**: Click on any team to select them as your winner
 - **Visual Feedback**: Selected teams are highlighted with a gradient background
 - **Pick Summary**: See all your picks summarized in one place
+- **Download Picks**: Save or print your picks summary for sharing or record-keeping
 - **Responsive Design**: Works on desktop and mobile devices
-- **Multiple Sports**: Supports NFL, NBA, College Football, and more
+- **Multiple Sports**: Supports NFL, College Football, and more
 
 ## How to Use
 
-1. Open `index.html` in a web browser
-2. Browse through the available matchups
-3. Click on the team you think will win for each matchup
-4. Review your picks in the "Your Picks" section
-5. Click "Submit All Picks" when you're ready to submit
+1. Open `index.html` in a web browser or visit the [live demo](https://jacobfullerobU.github.io/SportsPickEmGame/)
+2. The app will automatically load the latest NFL and top 25 College Football games
+3. Browse through the available matchups
+4. Click on the team you think will win for each matchup
+5. Review your picks in the "Your Picks" section
+6. Click "Submit All Picks" when you're ready to submit
+7. Click "Download Picks Summary" to save or print your picks for your records
 
 ## Files
 
@@ -33,10 +37,10 @@ The game is automatically deployed to GitHub Pages when changes are pushed to th
 
 ## Customization
 
-To add or modify matchups, edit the `matchups` array in `script.js`:
+The app automatically fetches live game data from ESPN's public API. If you want to customize the data sources or add manual matchups, edit the `sampleMatchups` array in `script.js`:
 
 ```javascript
-const matchups = [
+const sampleMatchups = [
     {
         id: 1,
         sport: "NFL",
@@ -54,6 +58,14 @@ const matchups = [
     // Add more matchups...
 ];
 ```
+
+### API Integration
+
+The app uses ESPN's public APIs to fetch:
+- **NFL Games**: `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard`
+- **College Football Games**: `https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard`
+
+If the APIs are unavailable, the app automatically falls back to sample data.
 
 ## Browser Support
 
