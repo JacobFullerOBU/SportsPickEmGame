@@ -196,15 +196,16 @@ function filterGames(games) {
             return false;
         }
         
-        // Filter by sport
-        if (game.sport === "NFL" && !sportFilters.nfl) {
-            return false;
+        // Filter by sport - only show games that match enabled filters
+        if (game.sport === "NFL" && sportFilters.nfl) {
+            return true;
         }
-        if (game.sport === "College Football" && !sportFilters.collegeFootball) {
-            return false;
+        if (game.sport === "College Football" && sportFilters.collegeFootball) {
+            return true;
         }
         
-        return true;
+        // If no filter matches, exclude the game
+        return false;
     });
 }
 
