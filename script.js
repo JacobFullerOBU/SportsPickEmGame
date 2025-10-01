@@ -1,5 +1,5 @@
-// Sample matchup data
-const matchups = [
+// Sample matchup data (fallback if API fails)
+const sampleMatchups = [
     {
         id: 1,
         sport: "NFL",
@@ -58,16 +58,131 @@ const matchups = [
     }
 ];
 
-// Store user picks
+// Store matchups and user picks
+let matchups = [];
 let userPicks = {};
 
+// Fetch NFL games for the upcoming week
+async function fetchNFLGames() {
+    try {
+        // Using ESPN's public API
+        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
+        const data = await response.json();
+        
+        const nflGames = data.events.map((event, index) => {
+            const competition = event.competitions[0];
+            const homeTeam = competition.competitors.find(c => c.homeAway === 'home');
+            const awayTeam = competition.competitors.find(c => c.homeAway === 'away');
+            
+            return {
+                id: `nfl-${index}`,
+                sport: "NFL",
+                date: new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                time: new Date(event.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
+                homeTeam: {
+                    name: homeTeam.team.displayName,
+                    record: `${homeTeam.records?.[0]?.summary || '0-0'}`
+                },
+                awayTeam: {
+                    name: awayTeam.team.displayName,
+                    record: `${awayTeam.records?.[0]?.summary || '0-0'}`
+                }
+            };
+        });
+        
+        return nflGames;
+    } catch (error) {
+        console.error('Error fetching NFL games:', error);
+        return [];
+    }
+}
+
+// Fetch top 25 college football games
+async function fetchCollegeFootballGames() {
+    try {
+        // Using ESPN's public API for college football
+        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard');
+        const data = await response.json();
+        
+        // Filter for games involving top 25 teams (based on rankings if available)
+        const cfbGames = data.events
+            .filter((event, index) => index < 25) // Limit to top matchups
+            .map((event, index) => {
+                const competition = event.competitions[0];
+                const homeTeam = competition.competitors.find(c => c.homeAway === 'home');
+                const awayTeam = competition.competitors.find(c => c.homeAway === 'away');
+                
+                return {
+                    id: `cfb-${index}`,
+                    sport: "College Football",
+                    date: new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                    time: new Date(event.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
+                    homeTeam: {
+                        name: homeTeam.team.displayName,
+                        record: `${homeTeam.records?.[0]?.summary || '0-0'}`
+                    },
+                    awayTeam: {
+                        name: awayTeam.team.displayName,
+                        record: `${awayTeam.records?.[0]?.summary || '0-0'}`
+                    }
+                };
+            });
+        
+        return cfbGames;
+    } catch (error) {
+        console.error('Error fetching College Football games:', error);
+        return [];
+    }
+}
+
+// Fetch all games
+async function fetchAllGames() {
+    const loadingContainer = document.getElementById('loading-container');
+    const matchupsContainer = document.getElementById('matchups-container');
+    
+    // Show loading indicator
+    loadingContainer.style.display = 'block';
+    matchupsContainer.style.display = 'none';
+    
+    try {
+        // Fetch both NFL and College Football games
+        const [nflGames, cfbGames] = await Promise.all([
+            fetchNFLGames(),
+            fetchCollegeFootballGames()
+        ]);
+        
+        // Combine all games
+        matchups = [...nflGames, ...cfbGames];
+        
+        // If no games fetched, use sample data
+        if (matchups.length === 0) {
+            console.log('No games fetched from APIs, using sample data');
+            matchups = sampleMatchups;
+        }
+    } catch (error) {
+        console.error('Error fetching games:', error);
+        matchups = sampleMatchups;
+    } finally {
+        // Hide loading indicator
+        loadingContainer.style.display = 'none';
+        matchupsContainer.style.display = 'block';
+    }
+}
+
 // Initialize the application
-function init() {
+async function init() {
+    // Fetch games from APIs
+    await fetchAllGames();
+    
+    // Render matchups
     renderMatchups();
     updatePicksSummary();
     
     // Set up submit button listener
     document.getElementById('submit-picks').addEventListener('click', submitPicks);
+    
+    // Set up download button listener
+    document.getElementById('download-picks').addEventListener('click', downloadPicksSummary);
 }
 
 // Render all matchups
@@ -150,12 +265,14 @@ function handleTeamClick(teamElement, matchup) {
 function updatePicksSummary() {
     const picksList = document.getElementById('picks-list');
     const submitBtn = document.getElementById('submit-picks');
+    const downloadBtn = document.getElementById('download-picks');
     
     const pickCount = Object.keys(userPicks).length;
     
     if (pickCount === 0) {
         picksList.innerHTML = '<p class="no-picks">No picks made yet. Start selecting winners!</p>';
         submitBtn.disabled = true;
+        downloadBtn.disabled = true;
     } else {
         picksList.innerHTML = '';
         
@@ -173,7 +290,160 @@ function updatePicksSummary() {
         });
         
         submitBtn.disabled = false;
+        downloadBtn.disabled = false;
     }
+}
+
+// Download picks summary as image
+async function downloadPicksSummary() {
+    const picksSummary = document.querySelector('.picks-summary');
+    
+    // Check if html2canvas is available (from CDN)
+    if (typeof html2canvas !== 'undefined') {
+        try {
+            const canvas = await html2canvas(picksSummary, {
+                backgroundColor: '#f8f9fa',
+                scale: 2,
+                logging: false
+            });
+            
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const timestamp = new Date().toISOString().slice(0, 10);
+                link.download = `picks-summary-${timestamp}.png`;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+            });
+            
+            alert('Your picks summary has been downloaded!');
+            return;
+        } catch (error) {
+            console.error('Error generating picks summary with html2canvas:', error);
+        }
+    }
+    
+    // Fallback: Create an HTML page and open it for screenshot/print
+    try {
+        const picksHTML = createPicksSummaryHTML();
+        const newWindow = window.open('', '_blank', 'width=800,height=600');
+        newWindow.document.write(picksHTML);
+        newWindow.document.close();
+        
+        // Give the user time to save/screenshot
+        setTimeout(() => {
+            newWindow.print();
+        }, 500);
+        
+        alert('A new window has opened with your picks summary. You can print or save it from there!');
+    } catch (error) {
+        console.error('Error creating picks summary:', error);
+        alert('Failed to create picks summary. Please try again.');
+    }
+}
+
+// Create HTML for picks summary
+function createPicksSummaryHTML() {
+    const timestamp = new Date().toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+    
+    let picksHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>My Sports Picks - ${timestamp}</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    padding: 40px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    margin: 0;
+                }
+                .container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                }
+                h1 {
+                    color: #667eea;
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+                .date {
+                    text-align: center;
+                    color: #666;
+                    margin-bottom: 30px;
+                }
+                .pick-item {
+                    background: #f8f9fa;
+                    padding: 20px;
+                    margin-bottom: 15px;
+                    border-radius: 10px;
+                    border-left: 5px solid #667eea;
+                }
+                .pick-sport {
+                    font-weight: bold;
+                    color: #667eea;
+                    font-size: 1.1em;
+                }
+                .pick-matchup {
+                    color: #666;
+                    margin: 5px 0;
+                }
+                .pick-choice {
+                    color: #333;
+                    font-size: 1.3em;
+                    font-weight: bold;
+                    margin-top: 10px;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 30px;
+                    color: #999;
+                    font-size: 0.9em;
+                }
+                @media print {
+                    body {
+                        background: white;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🏈 My Sports Picks 🏀</h1>
+                <div class="date">${timestamp}</div>
+    `;
+    
+    Object.values(userPicks).forEach(pick => {
+        picksHTML += `
+            <div class="pick-item">
+                <div class="pick-sport">${pick.sport}</div>
+                <div class="pick-matchup">${pick.matchup}</div>
+                <div class="pick-matchup">${pick.date}</div>
+                <div class="pick-choice">✓ ${pick.teamName}</div>
+            </div>
+        `;
+    });
+    
+    picksHTML += `
+                <div class="footer">
+                    Total Picks: ${Object.keys(userPicks).length} | Generated from Sports Pick 'Em Game
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    return picksHTML;
 }
 
 // Submit picks
