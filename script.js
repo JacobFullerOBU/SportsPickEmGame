@@ -5,6 +5,7 @@ const sampleMatchups = [
         sport: "NFL",
         date: "Sunday, October 6, 2025",
         time: "1:00 PM EST",
+        rawDate: new Date("2025-10-06T17:00:00Z"),
         homeTeam: {
             name: "Dallas Cowboys",
             record: "3-1"
@@ -19,6 +20,7 @@ const sampleMatchups = [
         sport: "NFL",
         date: "Sunday, October 6, 2025",
         time: "4:25 PM EST",
+        rawDate: new Date("2025-10-06T20:25:00Z"),
         homeTeam: {
             name: "Kansas City Chiefs",
             record: "4-0"
@@ -33,6 +35,7 @@ const sampleMatchups = [
         sport: "NBA",
         date: "Monday, October 7, 2025",
         time: "7:30 PM EST",
+        rawDate: new Date("2025-10-07T23:30:00Z"),
         homeTeam: {
             name: "Los Angeles Lakers",
             record: "2-0"
@@ -47,6 +50,7 @@ const sampleMatchups = [
         sport: "College Football",
         date: "Saturday, October 5, 2025",
         time: "3:30 PM EST",
+        rawDate: new Date("2025-10-05T19:30:00Z"),
         homeTeam: {
             name: "Alabama Crimson Tide",
             record: "4-1"
@@ -60,7 +64,12 @@ const sampleMatchups = [
 
 // Store matchups and user picks
 let matchups = [];
+let allMatchups = []; // Store all games before filtering
 let userPicks = {};
+let sportFilters = {
+    nfl: true,
+    collegeFootball: true
+};
 
 // Fetch NFL games for the upcoming week
 async function fetchNFLGames() {
@@ -73,12 +82,14 @@ async function fetchNFLGames() {
             const competition = event.competitions[0];
             const homeTeam = competition.competitors.find(c => c.homeAway === 'home');
             const awayTeam = competition.competitors.find(c => c.homeAway === 'away');
+            const gameDate = new Date(event.date);
             
             return {
                 id: `nfl-${index}`,
                 sport: "NFL",
-                date: new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-                time: new Date(event.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
+                date: gameDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                time: gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
+                rawDate: gameDate,
                 homeTeam: {
                     name: homeTeam.team.displayName,
                     record: `${homeTeam.records?.[0]?.summary || '0-0'}`
@@ -111,12 +122,14 @@ async function fetchCollegeFootballGames() {
                 const competition = event.competitions[0];
                 const homeTeam = competition.competitors.find(c => c.homeAway === 'home');
                 const awayTeam = competition.competitors.find(c => c.homeAway === 'away');
+                const gameDate = new Date(event.date);
                 
                 return {
                     id: `cfb-${index}`,
                     sport: "College Football",
-                    date: new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-                    time: new Date(event.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
+                    date: gameDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                    time: gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
+                    rawDate: gameDate,
                     homeTeam: {
                         name: homeTeam.team.displayName,
                         record: `${homeTeam.records?.[0]?.summary || '0-0'}`
@@ -152,16 +165,20 @@ async function fetchAllGames() {
         ]);
         
         // Combine all games
-        matchups = [...nflGames, ...cfbGames];
+        allMatchups = [...nflGames, ...cfbGames];
         
         // If no games fetched, use sample data
-        if (matchups.length === 0) {
+        if (allMatchups.length === 0) {
             console.log('No games fetched from APIs, using sample data');
-            matchups = sampleMatchups;
+            allMatchups = sampleMatchups;
         }
+        
+        // Apply filters
+        applyFilters();
     } catch (error) {
         console.error('Error fetching games:', error);
-        matchups = sampleMatchups;
+        allMatchups = sampleMatchups;
+        applyFilters();
     } finally {
         // Hide loading indicator
         loadingContainer.style.display = 'none';
@@ -169,14 +186,50 @@ async function fetchAllGames() {
     }
 }
 
+// Filter games based on sport and date
+function filterGames(games) {
+    const now = new Date();
+    
+    return games.filter(game => {
+        // Filter out games that have passed
+        if (game.rawDate && game.rawDate < now) {
+            return false;
+        }
+        
+        // Filter by sport
+        if (game.sport === "NFL" && !sportFilters.nfl) {
+            return false;
+        }
+        if (game.sport === "College Football" && !sportFilters.collegeFootball) {
+            return false;
+        }
+        
+        return true;
+    });
+}
+
+// Apply filters to matchups
+function applyFilters() {
+    matchups = filterGames(allMatchups);
+    renderMatchups();
+    updatePicksSummary();
+}
+
 // Initialize the application
 async function init() {
     // Fetch games from APIs
     await fetchAllGames();
     
-    // Render matchups
-    renderMatchups();
-    updatePicksSummary();
+    // Set up filter listeners
+    document.getElementById('filter-nfl').addEventListener('change', (e) => {
+        sportFilters.nfl = e.target.checked;
+        applyFilters();
+    });
+    
+    document.getElementById('filter-college').addEventListener('change', (e) => {
+        sportFilters.collegeFootball = e.target.checked;
+        applyFilters();
+    });
     
     // Set up submit button listener
     document.getElementById('submit-picks').addEventListener('click', submitPicks);
