@@ -14,14 +14,21 @@
         </header>
 
         <main>
+            <div id="loading-container" class="loading-container" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Loading matchups...</p>
+            </div>
             <div id="matchups-container"></div>
             
-            <div class="picks-summary">
+            <div class="picks-summary" id="picks-summary">
                 <h2>Your Picks</h2>
                 <div id="picks-list">
                     <p class="no-picks">No picks made yet. Start selecting winners!</p>
                 </div>
-                <button id="submit-picks" class="submit-btn" disabled>Submit All Picks</button>
+                <div class="button-container">
+                    <button id="submit-picks" class="submit-btn" disabled>Submit All Picks</button>
+                    <button id="download-picks" class="download-btn" disabled>Download Picks Summary</button>
+                </div>
             </div>
         </main>
     </div>
